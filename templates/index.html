@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piloto Automático | Insights</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Piloto Automático 🚀</h1>
+            <p>Monitoreo en tiempo real de ventas Multi-Canal</p>
+        </header>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <span class="stat-label">Total Amazon</span>
+                <span class="stat-value" id="count-amazon">...</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Total ML</span>
+                <span class="stat-value" id="count-ml">...</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Total Shopify</span>
+                <span class="stat-value" id="count-shopify">...</span>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Amazon -->
+            <div class="card">
+                <h2 class="platform-amazon">Amazon</h2>
+                <div class="table-container">
+                    <table id="amazon-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Orden</th>
+                                <th>Venta</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ML -->
+            <div class="card">
+                <h2 class="platform-ml">MercadoLibre</h2>
+                <div class="table-container">
+                    <table id="ml-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>ID</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Shopify -->
+            <div class="card">
+                <h2 class="platform-shopify">Shopify</h2>
+                <div class="table-container">
+                    <table id="shopify-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Nombre</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function updateDashboard() {
+            try {
+                // Fetch data
+                const res = await fetch('/api/data');
+                const data = await res.json();
+
+                // Fetch stats
+                const statsRes = await fetch('/api/stats');
+                const stats = await statsRes.json();
+
+                // Update counters
+                document.getElementById('count-amazon').innerText = stats.amazon.toLocaleString();
+                document.getElementById('count-ml').innerText = stats.ml.toLocaleString();
+                document.getElementById('count-shopify').innerText = stats.shopify.toLocaleString();
+
+                fillTable('amazon-table', data.amazon, row => `
+                    <td>${(row.fecha || '').split('T')[0]}</td>
+                    <td>${row.id || '-'}</td>
+                    <td class="price">$${parseFloat(row.monto || 0).toLocaleString()}</td>
+                `);
+
+                fillTable('ml-table', data.ml, row => `
+                    <td>${(row.fecha || '').split('T')[0]}</td>
+                    <td>${row.id || '-'}</td>
+                    <td class="price">$${parseFloat(row.monto || 0).toLocaleString()}</td>
+                `);
+
+                fillTable('shopify-table', data.shopify, row => `
+                    <td>${(row.fecha || '').split('T')[0]}</td>
+                    <td>${row.id || '-'}</td>
+                    <td class="price">$${parseFloat(row.monto || 0).toLocaleString()}</td>
+                `);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function fillTable(id, rows, formatter) {
+            const body = document.getElementById(id).querySelector('tbody');
+            if (!rows || !rows.length) {
+                body.innerHTML = '<tr><td colspan="3" class="loading">Sin datos</td></tr>';
+                return;
+            }
+            body.innerHTML = rows.map(r => `<tr>${formatter(r)}</tr>`).join('');
+        }
+
+        updateDashboard();
+        // Recargar cada 30 segundos
+        setInterval(updateDashboard, 30000);
+    </script>
+</body>
+
+</html>

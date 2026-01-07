@@ -1,0 +1,10 @@
+# Evitar subir carpetas de funciones y archivos innecesarios al contenedor del dashboard
+Amazon/
+Mercadolibre/
+Shopify/
+sincronizar.ps1
+desplegar.ps1
+test.ps1
+.git/
+__pycache__/
+*.zip

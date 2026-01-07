@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Credentials
+credenciales.json
+service_account.json
+secrets.json
+
+# Tool specific
+.gemini/
+brain/
+*source_fn.zip
+*source_run.zip
+completo.zip
+todo_el_codigo.zip
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
